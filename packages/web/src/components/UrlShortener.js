@@ -4,7 +4,6 @@ import { useState } from 'react';
 
 export default function UrlShortener() {
   const [url, setUrl] = useState('');
-  const [customCode, setCustomCode] = useState('');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -21,7 +20,7 @@ export default function UrlShortener() {
       const response = await fetch('/api/tools/url-shortener', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url, customCode: customCode || undefined }),
+        body: JSON.stringify({ url }),
       });
 
       const data = await response.json();
@@ -29,7 +28,6 @@ export default function UrlShortener() {
       if (data.success) {
         setResult(data.data);
         setUrl('');
-        setCustomCode('');
       } else {
         setError(data.error || 'Failed to shorten URL');
       }
@@ -47,7 +45,7 @@ export default function UrlShortener() {
   return (
     <div className="tool-card">
       <h2>🔗 URL Shortener</h2>
-      <p>Create short, custom links for easy sharing</p>
+      <p>Create short links using TinyURL for easy sharing</p>
 
       <form onSubmit={handleSubmit}>
         <div className="form-group">
@@ -59,20 +57,6 @@ export default function UrlShortener() {
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://example.com"
             required
-            disabled={loading}
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="customCode">Custom code (optional):</label>
-          <input
-            id="customCode"
-            type="text"
-            value={customCode}
-            onChange={(e) => setCustomCode(e.target.value)}
-            placeholder="my-custom-link"
-            pattern="^[a-zA-Z0-9\-_]{3,20}$"
-            title="3-20 characters: letters, numbers, hyphens, underscores only"
             disabled={loading}
           />
         </div>
@@ -109,6 +93,10 @@ export default function UrlShortener() {
           <div className="result-item">
             <label>Original URL:</label>
             <span className="original-url">{result.originalUrl}</span>
+          </div>
+          <div className="result-item">
+            <label>Provider:</label>
+            <span className="provider">🔗 TinyURL</span>
           </div>
         </div>
       )}
