@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// In-memory storage for URLs (in production, use a database)
-const urlDatabase = new Map();
+// Global storage for URLs - shared across all API routes
+global.urlDatabase = global.urlDatabase || new Map();
 
 export async function POST(request) {
   try {
@@ -37,7 +37,7 @@ export async function POST(request) {
       }
 
       // Check if custom code already exists
-      if (urlDatabase.has(customCode)) {
+      if (global.urlDatabase.has(customCode)) {
         return NextResponse.json({
           success: false,
           error: 'This custom code is already taken. Please choose another one.'
@@ -50,7 +50,7 @@ export async function POST(request) {
       shortCode = Math.random().toString(36).substring(2, 8);
     }
 
-    urlDatabase.set(shortCode, url);
+    global.urlDatabase.set(shortCode, url);
 
     // Get the base URL from environment or request
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 

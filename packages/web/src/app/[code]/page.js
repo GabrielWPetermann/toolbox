@@ -2,8 +2,7 @@ import { redirect, notFound } from 'next/navigation';
 
 async function getRedirectUrl(code) {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
-    const response = await fetch(`${apiUrl}/tools/s/${code}`, {
+    const response = await fetch(`/api/tools/s/${code}`, {
       method: 'GET',
       redirect: 'manual',
     });

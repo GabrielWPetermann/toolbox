@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// In-memory storage for URLs (shared with url-shortener)
-const urlDatabase = new Map();
+// Global storage for URLs - shared across all API routes
+global.urlDatabase = global.urlDatabase || new Map();
 
 export async function GET(request, { params }) {
   const { shortCode } = params;
@@ -13,7 +13,7 @@ export async function GET(request, { params }) {
     }, { status: 400 });
   }
 
-  const originalUrl = urlDatabase.get(shortCode);
+  const originalUrl = global.urlDatabase.get(shortCode);
 
   if (!originalUrl) {
     return NextResponse.json({ 
