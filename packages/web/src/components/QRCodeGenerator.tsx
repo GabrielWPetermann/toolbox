@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { qrCodeApi } from '@/lib/api';
-import { ApiResponse, QRCodeResponse } from '@/types/api';
+import { qrCodeApi } from '../lib/api';
+import { ApiResponse, QRCodeResponse } from '../types/api';
 
 export default function QRCodeGenerator() {
   const [text, setText] = useState('');

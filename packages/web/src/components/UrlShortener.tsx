@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { urlShortenerApi } from '@/lib/api';
-import { ApiResponse, UrlShortenerResponse } from '@/types/api';
+import { urlShortenerApi } from '../lib/api';
+import { ApiResponse, UrlShortenerResponse } from '../types/api';
 
 export default function UrlShortener() {
   const [url, setUrl] = useState('');

@@ -1,6 +1,6 @@
-import StatusIndicator from '@/components/StatusIndicator';
-import UrlShortener from '@/components/UrlShortener';
-import QRCodeGenerator from '@/components/QRCodeGenerator';
+import StatusIndicator from '../components/StatusIndicator';
+import UrlShortener from '../components/UrlShortener';
+import QRCodeGenerator from '../components/QRCodeGenerator';
 
 export default function Home() {
   return (

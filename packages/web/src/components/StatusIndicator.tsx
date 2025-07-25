@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { healthApi } from '@/lib/api';
+import { healthApi } from '../lib/api';
 
 export default function StatusIndicator() {
   const [isOnline, setIsOnline] = useState<boolean | null>(null);
