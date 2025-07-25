@@ -1,0 +1,31 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Toolbox body -->
+  <rect x="4" y="24" width="56" height="32" rx="6" ry="6" fill="#dc2626"/>
+  <rect x="4" y="24" width="56" height="32" rx="6" ry="6" fill="url(#gradient)" opacity="0.15"/>
+  
+  <!-- Handle -->
+  <rect x="22" y="4" width="20" height="12" rx="4" ry="4" fill="#4b5563"/>
+  <rect x="22" y="14" width="20" height="6" fill="#4b5563"/>
+  
+  <!-- Handle grip -->
+  <rect x="26" y="8" width="12" height="4" rx="2" ry="2" fill="#6b7280"/>
+  
+  <!-- Left compartment -->
+  <rect x="10" y="32" width="8" height="16" rx="2" ry="2" fill="#f3f4f6"/>
+  
+  <!-- Right compartment -->
+  <rect x="26" y="32" width="8" height="16" rx="2" ry="2" fill="#f3f4f6"/>
+  
+  <!-- Tool slot -->
+  <rect x="40" y="28" width="16" height="4" rx="2" ry="2" fill="#991b1b"/>
+  
+  <!-- Shadow/depth -->
+  <rect x="4" y="50" width="56" height="6" rx="6" ry="6" fill="#991b1b"/>
+  
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.4" />
+      <stop offset="100%" style="stop-color:#000000;stop-opacity:0.2" />
+    </linearGradient>
+  </defs>
+</svg>

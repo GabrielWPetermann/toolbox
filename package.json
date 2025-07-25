@@ -1,0 +1,44 @@
+{
+  "name": "toolbox-web",
+  "version": "1.0.0",
+  "description": "A simple web toolbox MVP with Node.js, TypeScript, Express and React",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "npm run dev --workspace=packages/api",
+    "dev:web": "npm run dev --workspace=packages/web",
+    "build": "npm run build --workspaces",
+    "build:web": "npm run build --workspace=packages/web",
+    "build:api": "npm run build --workspace=packages/api",
+    "start": "npm run start --workspace=packages/web",
+    "install:all": "npm install --workspaces"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GabrielWPetermann/toolbox.git"
+  },
+  "homepage": "https://atoolbox.vercel.app",
+  "keywords": [
+    "toolbox",
+    "utilities",
+    "typescript",
+    "nodejs",
+    "express",
+    "react",
+    "url-shortener",
+    "qr-code"
+  ],
+  "author": "Gabriel W Petermann",
+  "license": "MIT"
+}
