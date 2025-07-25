@@ -1,3 +1,5 @@
+import '@/styles/globals.css';
+
 export const metadata = {
   title: 'Toolbox Web - Simple Web Tools',
   description: 'A collection of simple and useful web tools including URL shortener, QR code generator, and more.',

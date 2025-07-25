@@ -1,4 +1,3 @@
-import '@/styles/globals.css';
 import StatusIndicator from '@/components/StatusIndicator';
 import UrlShortener from '@/components/UrlShortener';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
