@@ -4,8 +4,12 @@ This document describes the REST API endpoints available in the Toolbox applicat
 
 ## Base URL
 
-- **Development**: `http://localhost:3001/api`
+- **Development**: `http://localhost:3000/api`
 - **Production**: `https://atoolbox.vercel.app/api`
+
+## Architecture
+
+The API is built using Next.js 14 App Router with serverless API routes. All endpoints are stateless and integrate with external services for reliability.
 
 ## Authentication
 
@@ -33,33 +37,16 @@ All API responses follow a consistent format:
 
 ## Endpoints
 
-### Health Check
-
-Check if the API is running.
-
-**Endpoint**: `GET /health`
-
-**Response**:
-```json
-{
-  "success": true,
-  "message": "API is running"
-}
-```
-
----
-
 ### URL Shortener
 
-Create a shortened URL with optional custom code.
+Shorten URLs using the TinyURL service for reliable, permanent short links.
 
 **Endpoint**: `POST /tools/url-shortener`
 
 **Request Body**:
 ```json
 {
-  "url": "https://example.com",
-  "customCode": "my-custom-code" // optional
+  "url": "https://example.com"
 }
 ```
 
@@ -69,9 +56,8 @@ Create a shortened URL with optional custom code.
   "success": true,
   "data": {
     "originalUrl": "https://example.com",
-    "shortCode": "my-custom-code",
-    "shortUrl": "https://atoolbox.vercel.app/my-custom-code",
-    "isCustom": true
+    "shortUrl": "https://tinyurl.com/abc123",
+    "provider": "tinyurl"
   }
 }
 ```
@@ -80,36 +66,18 @@ Create a shortened URL with optional custom code.
 ```json
 {
   "success": false,
-  "error": "Custom code must be 3-20 characters long and contain only letters, numbers, hyphens, and underscores"
+  "error": "Invalid URL format"
 }
 ```
 
 **Validation Rules**:
-- `url`: Required, must be a valid URL
-- `customCode`: Optional, 3-20 characters, alphanumeric + hyphens + underscores only
+- `url`: Required, must be a valid URL format
 
----
-
-### URL Redirect
-
-Redirect a short code to its original URL.
-
-**Endpoint**: `GET /tools/s/:shortCode`
-
-**Parameters**:
-- `shortCode`: The short code to redirect
-
-**Response** (Success):
-- HTTP 302 redirect to the original URL
-
-**Response** (Error):
-```json
-{
-  "success": false,
-  "error": "Short URL not found"
-}
-```
-
+**Features**:
+- Uses TinyURL API for reliable shortening
+- No custom codes (managed by TinyURL)
+- Permanent links that don't expire
+- Global redirect infrastructure
 ---
 
 ### QR Code Generator
@@ -147,57 +115,33 @@ Generate a QR code from text or URL.
 **Validation Rules**:
 - `text`: Required, any string
 
----
-
-### List Available Tools
-
-Get information about all available tools.
-
-**Endpoint**: `GET /tools/`
-
-**Response**:
-```json
-{
-  "success": true,
-  "message": "Available tools (MVP)",
-  "tools": [
-    {
-      "name": "url-shortener",
-      "endpoint": "POST /api/tools/url-shortener",
-      "description": "Shorten long URLs"
-    },
-    {
-      "name": "qr-code",
-      "endpoint": "POST /api/tools/qr-code",
-      "description": "Generate QR codes from text"
-    }
-  ]
-}
-```
+**Features**:
+- Server-side QR code generation
+- PNG format with base64 encoding
+- High resolution for scanning
+- Supports any text content
 
 ## Error Codes
 
 | HTTP Status | Description |
 |-------------|-------------|
 | 200 | Success |
-| 302 | Redirect (for short URLs) |
 | 400 | Bad Request (validation error) |
-| 404 | Not Found (short code doesn't exist) |
 | 500 | Internal Server Error |
 
 ## Rate Limiting
 
-Currently, no rate limiting is implemented. This may be added in future versions.
+Currently, no rate limiting is implemented. The application relies on Vercel's built-in protections and TinyURL's rate limiting.
 
 ## Examples
 
 ### Curl Examples
 
-**Create a short URL**:
+**Shorten a URL**:
 ```bash
 curl -X POST https://atoolbox.vercel.app/api/tools/url-shortener \
   -H "Content-Type: application/json" \
-  -d '{"url": "https://github.com", "customCode": "github"}'
+  -d '{"url": "https://github.com"}'
 ```
 
 **Generate a QR Code**:
@@ -205,11 +149,6 @@ curl -X POST https://atoolbox.vercel.app/api/tools/url-shortener \
 curl -X POST https://atoolbox.vercel.app/api/tools/qr-code \
   -H "Content-Type: application/json" \
   -d '{"text": "Hello World"}'
-```
-
-**Check API Health**:
-```bash
-curl https://atoolbox.vercel.app/api/health
 ```
 
 ### JavaScript Examples
@@ -223,13 +162,12 @@ const response = await fetch('/api/tools/url-shortener', {
     'Content-Type': 'application/json',
   },
   body: JSON.stringify({
-    url: 'https://example.com',
-    customCode: 'example'
+    url: 'https://example.com'
   }),
 });
 
 const result = await response.json();
-console.log(result.data.shortUrl);
+console.log(result.data.shortUrl); // TinyURL link
 ```
 
 ```javascript
@@ -250,8 +188,9 @@ const result = await response.json();
 
 ## Notes
 
-- All URLs are stored in memory and will be lost when the server restarts
-- In production, consider implementing persistent storage (database)
-- Short codes are case-sensitive
-- The QR code is returned as a base64-encoded PNG image
-- Custom codes must be unique across the entire system
+- **No Storage**: The application is stateless and doesn't store URLs
+- **TinyURL Integration**: All shortened URLs are managed by TinyURL
+- **Permanent Links**: TinyURL provides permanent, non-expiring links
+- **Global Infrastructure**: TinyURL handles redirects worldwide
+- **QR Codes**: Generated server-side and returned as base64 PNG images
+- **Reliability**: External service integration ensures high availability

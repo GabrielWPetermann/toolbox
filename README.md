@@ -1,58 +1,58 @@
-# 🧰 Toolbox Web
+# 🧰 Toolbox - Essential Developer Tools
 
-A modern, comprehensive web toolbox built with TypeScript, Node.js, and React. This application provides a collection of practical tools for developers and everyday users, featuring URL shortening, QR code generation, and more utilities in a clean, responsive interface.
+A modern web application that provides essential developer tools including URL shortening and QR code generation. Built with Next.js 14 and features a stunning glassmorphism design with TinyURL integration for reliable URL shortening.
 
 🔗 **Live Demo**: [atoolbox.vercel.app](https://atoolbox.vercel.app)
 
 [![Deployment Status](https://img.shields.io/badge/deployment-vercel-black?logo=vercel)](https://atoolbox.vercel.app)
-[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![Next.js](https://img.shields.io/badge/Next.js-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
-[![Express.js](https://img.shields.io/badge/Express.js-000000?logo=express&logoColor=white)](https://expressjs.com/)
+[![TinyURL](https://img.shields.io/badge/TinyURL-API-blue)](https://tinyurl.com/)
 
 ## ✨ Features
 
 ### 🔗 URL Shortener
-- **Custom Short Codes**: Create personalized short links like `atoolbox.vercel.app/my-link`
-- **Auto-Generated Codes**: Automatic short code generation if no custom code is provided
-- **Real-time Validation**: Instant feedback on code availability and format
-- **Copy to Clipboard**: One-click copying functionality
-- **Redirect Tracking**: Seamless redirection to original URLs
+- **TinyURL Integration**: Reliable URL shortening powered by TinyURL API
+- **One-Click Shortening**: Instant URL compression with single click
+- **Copy to Clipboard**: Quick copying functionality with visual feedback
+- **URL Validation**: Smart validation with user-friendly error messages
+- **Global Compatibility**: Works with any valid URL worldwide
 
 ### 📱 QR Code Generator  
 - **Instant Generation**: Create QR codes from any text or URL
-- **High Quality**: PNG format with optimal resolution
-- **Download Support**: Save QR codes directly to device
-- **Live Preview**: Real-time QR code preview
+- **High Quality**: PNG format with optimal resolution for scanning
+- **Download Support**: Save QR codes directly to your device
+- **Live Preview**: Real-time QR code preview as you type
 - **Versatile Input**: Works with URLs, text, contact info, WiFi credentials
 
-### 🎨 Modern Interface
-- **Responsive Design**: Works perfectly on desktop, tablet, and mobile
-- **Glass Morphism**: Modern UI with backdrop blur effects
-- **Real-time Status**: Live connection status indicator
-- **Loading States**: Smooth loading animations and feedback
-- **Error Handling**: User-friendly error messages and validation
+### 🎨 Glassmorphism Design
+- **Modern Glass Effects**: Stunning backdrop blur and transparency effects
+- **Gradient Backgrounds**: Dynamic purple-blue animated gradients
+- **Responsive Layout**: Perfect experience on desktop, tablet, and mobile
+- **Smooth Animations**: Elegant hover effects and transitions
+- **Dark Theme**: Professional dark mode with glass accents
 
-### 📱 PWA Ready
-- **Installable**: Can be installed as a native app on any device
-- **Offline Interface**: Core UI works without internet connection
-- **Custom Branding**: Custom toolbox icon and theme
-- **App-like Experience**: Native app feel with web technology
+### � Performance & UX
+- **Lightning Fast**: Built with Next.js 14 App Router for optimal performance
+- **Real-time Feedback**: Instant loading states and status indicators
+- **Error Recovery**: Graceful error handling with helpful messages
+- **Accessible**: WCAG compliant with keyboard navigation support
 
 ## 🛠 Technology Stack
 
-### Frontend
-- **Next.js 14**: React framework with App Router
+### Frontend & API
+- **Next.js 14**: React framework with App Router and API routes
+- **JavaScript**: Modern ES6+ development with full stack in JavaScript
 - **React 18**: Modern React with hooks and concurrent features
-- **TypeScript**: Full type safety and IntelliSense
-- **Custom CSS**: Modern styling with CSS Grid and Flexbox
-- **PWA Support**: Service worker and manifest configuration
+- **CSS3**: Custom glassmorphism styling with backdrop filters and gradients
+- **TinyURL API**: External URL shortening service integration
 
-### Backend
-- **Express.js**: Fast, unopinionated web framework
-- **Node.js**: JavaScript runtime built on Chrome's V8 engine
-- **TypeScript**: Type-safe server-side development
-- **CORS**: Cross-origin resource sharing configuration
-- **RESTful API**: Clean, consistent API design
+### Design System
+- **Glassmorphism**: Modern glass-effect aesthetic with backdrop blur
+- **Gradient Backgrounds**: Dynamic purple-blue animated gradients
+- **Responsive Design**: Mobile-first CSS Grid and Flexbox layouts
+- **CSS Animations**: Smooth hover effects and transitions
+- **Accessibility**: WCAG compliant design patterns
 
 ### Development & Deployment
 - **Vercel**: Zero-configuration deployment platform
@@ -111,30 +111,28 @@ cd toolbox
 npm install
 ```
 
-3. **Start development servers**:
+3. **Start development server**:
 ```bash
+cd packages/web
 npm run dev
 ```
 
-This starts both frontend (http://localhost:3000) and backend (http://localhost:3001) concurrently.
+This starts the Next.js application with API routes at http://localhost:3000
 
 ### Development Commands
 
 ```bash
-# Start both frontend and backend
-npm run dev
-
-# Start only frontend
-npm run dev:web
-
-# Start only backend  
-npm run dev:api
+# Start the development server
+cd packages/web && npm run dev
 
 # Build for production
-npm run build
+cd packages/web && npm run build
 
 # Start production server
-npm start
+cd packages/web && npm start
+
+# Lint code
+cd packages/web && npm run lint
 ```
 
 ## 📖 Documentation
@@ -146,11 +144,8 @@ npm start
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/health` | GET | Health check |
-| `/api/tools/url-shortener` | POST | Create short URL |
-| `/api/tools/s/:code` | GET | Redirect to original URL |
+| `/api/tools/url-shortener` | POST | Shorten URL via TinyURL |
 | `/api/tools/qr-code` | POST | Generate QR code |
-| `/api/tools/` | GET | List available tools |
 
 ### Example API Usage
 
@@ -158,7 +153,7 @@ npm start
 ```bash
 curl -X POST https://atoolbox.vercel.app/api/tools/url-shortener \
   -H "Content-Type: application/json" \
-  -d '{"url": "https://github.com", "customCode": "github"}'
+  -d '{"url": "https://github.com"}'
 ```
 
 **Generate QR Code**:
@@ -170,13 +165,13 @@ curl -X POST https://atoolbox.vercel.app/api/tools/qr-code \
 
 ## 🌐 Deployment
 
-The application is configured for seamless deployment on Vercel:
+The application is configured for seamless deployment on Vercel as a full-stack Next.js application:
 
 1. **Connect GitHub repository** to Vercel
-2. **Configure environment variables**:
-   - `NEXT_PUBLIC_API_URL=https://atoolbox.vercel.app/api`
-   - `FRONTEND_URL=https://atoolbox.vercel.app`
+2. **Set Root Directory** to `packages/web`
 3. **Deploy automatically** on every push to main branch
+
+The application runs entirely within Next.js API routes, making deployment simple and cost-effective.
 
 See the [Deployment Guide](docs/DEPLOYMENT.md) for detailed instructions.
 
@@ -184,16 +179,14 @@ See the [Deployment Guide](docs/DEPLOYMENT.md) for detailed instructions.
 
 ### Environment Variables
 
-**Frontend** (`.env.local`):
-```env
-NEXT_PUBLIC_API_URL=http://localhost:3001/api
-```
+No environment variables are required for basic functionality. The application uses:
+- **TinyURL API**: Public API, no key required
+- **QR Code Generation**: Client-side generation using qrcode library
 
-**Backend** (`.env`):
+For development, create `.env.local` in `packages/web/`:
 ```env
+# Optional: Add any custom environment variables here
 NODE_ENV=development
-FRONTEND_URL=http://localhost:3000
-PORT=3001
 ```
 
 ## 🤝 Contributing
@@ -210,22 +203,22 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔄 Roadmap
 
-- [ ] **Database Integration**: Replace in-memory storage with PostgreSQL
-- [ ] **User Accounts**: User registration and URL management
-- [ ] **Analytics**: Click tracking and statistics
-- [ ] **Custom Domains**: Support for custom short domains
-- [ ] **Bulk Operations**: Batch URL shortening and QR generation
-- [ ] **API Authentication**: JWT-based API authentication
-- [ ] **Rate Limiting**: Request rate limiting and abuse prevention
+- [ ] **Enhanced URL Features**: Custom aliases and expiration dates
+- [ ] **Analytics Dashboard**: Click tracking and usage statistics  
+- [ ] **Batch Operations**: Multiple URL shortening and QR generation
 - [ ] **More Tools**: Text utilities, image tools, converters
+- [ ] **PWA Features**: Offline mode and app installation
+- [ ] **API Authentication**: Rate limiting and usage tracking
+- [ ] **Custom Themes**: Multiple glassmorphism color schemes
+- [ ] **Export Options**: Bulk QR code downloads and URL lists
 
 ## 🙏 Acknowledgments
 
-- **Next.js Team** - For the amazing React framework
-- **Vercel** - For the seamless deployment platform
-- **QRCode.js** - For QR code generation
-- **Express.js** - For the lightweight backend framework
+- **Next.js Team** - For the amazing React framework with App Router
+- **TinyURL** - For the reliable URL shortening service
+- **Vercel** - For the seamless full-stack deployment platform
+- **QRCode.js** - For client-side QR code generation
 
 ---
 
-Built using modern web technologies. Perfect for developers who need quick access to essential tools without leaving their browser.
+Built with modern glassmorphism design and powered by Next.js 14. Perfect for developers who need quick access to essential tools with a beautiful, professional interface.
