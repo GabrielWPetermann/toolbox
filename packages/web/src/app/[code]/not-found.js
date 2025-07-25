@@ -63,14 +63,6 @@ export default function NotFound() {
             transition: 'all 0.3s ease',
             backdropFilter: 'blur(5px)'
           }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)';
-            e.currentTarget.style.transform = 'translateY(-2px)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)';
-            e.currentTarget.style.transform = 'translateY(0)';
-          }}
         >
           🧰 Back to Toolbox
         </Link>
