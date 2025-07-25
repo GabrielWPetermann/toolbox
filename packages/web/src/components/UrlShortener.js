@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import CopyNotification from './CopyNotification';
 
 export default function UrlShortener() {
   const [url, setUrl] = useState('');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showNotification, setShowNotification] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,6 +42,7 @@ export default function UrlShortener() {
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
+    setShowNotification(true);
   };
 
   return (
@@ -83,10 +86,10 @@ export default function UrlShortener() {
               </a>
               <button 
                 onClick={() => copyToClipboard(result.shortUrl)}
-                className="copy-btn"
+                className="action-btn"
                 title="Copy to clipboard"
               >
-                📋
+                📋 Copy
               </button>
             </div>
           </div>
@@ -100,6 +103,12 @@ export default function UrlShortener() {
           </div>
         </div>
       )}
+
+      <CopyNotification 
+        show={showNotification} 
+        onHide={() => setShowNotification(false)} 
+        message="URL copiada para área de transferência!"
+      />
     </div>
   );
 }
