@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { marked } from 'marked';
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
 
 export async function POST(request) {
   try {
@@ -159,28 +160,40 @@ async function generatePdf(htmlContent) {
   let page = null;
   
   try {
-    // Enhanced Puppeteer configuration for production
-    browser = await puppeteer.launch({
-      headless: 'new',
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--disable-gpu',
-        '--disable-web-security',
-        '--disable-features=VizDisplayCompositor',
-        '--run-all-compositor-stages-before-draw',
-        '--disable-background-timer-throttling',
-        '--disable-renderer-backgrounding',
-        '--disable-backgrounding-occluded-windows',
-        '--disable-ipc-flooding-protection'
-      ],
-      timeout: 60000, // 60 segundos timeout
-      protocolTimeout: 60000
-    });
+    // Detect if we're in production (Vercel) or development
+    const isProduction = process.env.NODE_ENV === 'production';
+    
+    let launchOptions;
+    
+    if (isProduction) {
+      // Production configuration using @sparticuz/chromium
+      launchOptions = {
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+        ignoreHTTPSErrors: true,
+        timeout: 60000
+      };
+    } else {
+      // Development configuration using local Puppeteer
+      launchOptions = {
+        headless: 'new',
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--no-first-run',
+          '--no-zygote',
+          '--disable-gpu'
+        ],
+        timeout: 60000
+      };
+    }
+    
+    console.log('Launching browser...', { isProduction });
+    browser = await puppeteer.launch(launchOptions);
     
     page = await browser.newPage();
     
