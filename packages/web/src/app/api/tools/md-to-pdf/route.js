@@ -114,36 +114,8 @@ export async function POST(request) {
       </html>
     `;
 
-    // Launch puppeteer and generate PDF
-    const browser = await puppeteer.launch({
-      headless: 'new',
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--single-process',
-        '--disable-gpu'
-      ]
-    });
-    
-    const page = await browser.newPage();
-    await page.setContent(styledHtml, { waitUntil: 'networkidle0' });
-    
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      margin: {
-        top: '1cm',
-        right: '1cm',
-        bottom: '1cm',
-        left: '1cm'
-      },
-      printBackground: true
-    });
-    
-    await browser.close();
+    // Generate PDF with enhanced error handling
+    const pdfBuffer = await generatePdf(styledHtml);
 
     // Return PDF as base64
     const pdfBase64 = pdfBuffer.toString('base64');
@@ -164,12 +136,14 @@ export async function POST(request) {
     // More detailed error response
     let errorMessage = 'Failed to generate PDF';
     
-    if (error.message.includes('net::ERR_CONNECTION_REFUSED')) {
+    if (error.message.includes('Target closed')) {
+      errorMessage = 'PDF generation interrupted. Please try again.';
+    } else if (error.message.includes('net::ERR_CONNECTION_REFUSED')) {
       errorMessage = 'Browser connection error. Please try again.';
-    } else if (error.message.includes('Target closed')) {
-      errorMessage = 'Browser process interrupted. Please try again.';
     } else if (error.message.includes('timeout')) {
       errorMessage = 'PDF generation timeout. Please try again with shorter content.';
+    } else if (error.message.includes('Protocol error')) {
+      errorMessage = 'Browser protocol error. Please try again.';
     }
     
     return NextResponse.json({ 
@@ -178,4 +152,81 @@ export async function POST(request) {
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     }, { status: 500 });
   }
+}
+
+async function generatePdf(htmlContent) {
+  let browser = null;
+  let page = null;
+  
+  try {
+    // Enhanced Puppeteer configuration for production
+    browser = await puppeteer.launch({
+      headless: 'new',
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--disable-gpu',
+        '--disable-web-security',
+        '--disable-features=VizDisplayCompositor',
+        '--run-all-compositor-stages-before-draw',
+        '--disable-background-timer-throttling',
+        '--disable-renderer-backgrounding',
+        '--disable-backgrounding-occluded-windows',
+        '--disable-ipc-flooding-protection'
+      ],
+      timeout: 60000, // 60 segundos timeout
+      protocolTimeout: 60000
+    });
+    
+    page = await browser.newPage();
+    
+    // Configure page settings
+    await page.setDefaultNavigationTimeout(60000);
+    await page.setDefaultTimeout(60000);
+    
+    // Set content with simpler wait strategy
+    await page.setContent(htmlContent, { 
+      waitUntil: 'load',
+      timeout: 60000
+    });
+    
+    // Wait a bit for any dynamic content
+    await page.waitForTimeout(2000);
+    
+    // Generate PDF with timeout
+    const pdfBuffer = await page.pdf({
+      format: 'A4',
+      margin: {
+        top: '1cm',
+        right: '1cm',
+        bottom: '1cm',
+        left: '1cm'
+      },
+      printBackground: true,
+      timeout: 60000
+    });
+    
+    return pdfBuffer;
+  } finally {
+    // Ensure cleanup
+    if (page) {
+      try {
+        await page.close();
+      } catch (e) {
+        console.warn('Error closing page:', e.message);
+      }
+    }
+    if (browser) {
+      try {
+        await browser.close();
+      } catch (e) {
+        console.warn('Error closing browser:', e.message);
+      }
+    }
+  }
+}
 }

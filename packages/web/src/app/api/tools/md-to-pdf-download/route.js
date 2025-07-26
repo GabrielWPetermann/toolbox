@@ -114,36 +114,8 @@ export async function POST(request) {
       </html>
     `;
 
-    // Launch puppeteer and generate PDF
-    const browser = await puppeteer.launch({
-      headless: 'new',
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--single-process',
-        '--disable-gpu'
-      ]
-    });
-    
-    const page = await browser.newPage();
-    await page.setContent(styledHtml, { waitUntil: 'networkidle0' });
-    
-    const pdfBuffer = await page.pdf({
-      format: 'A4',
-      margin: {
-        top: '1cm',
-        right: '1cm',
-        bottom: '1cm',
-        left: '1cm'
-      },
-      printBackground: true
-    });
-    
-    await browser.close();
+    // Generate PDF with enhanced error handling
+    const pdfBuffer = await generatePdf(styledHtml);
 
     // Return PDF as file download
     return new NextResponse(pdfBuffer, {
@@ -163,5 +135,81 @@ export async function POST(request) {
       error: 'Failed to generate PDF',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     }, { status: 500 });
+  }
+}
+
+async function generatePdf(htmlContent) {
+  let browser = null;
+  let page = null;
+  
+  try {
+    // Enhanced Puppeteer configuration for production
+    browser = await puppeteer.launch({
+      headless: 'new',
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--disable-gpu',
+        '--disable-web-security',
+        '--disable-features=VizDisplayCompositor',
+        '--run-all-compositor-stages-before-draw',
+        '--disable-background-timer-throttling',
+        '--disable-renderer-backgrounding',
+        '--disable-backgrounding-occluded-windows',
+        '--disable-ipc-flooding-protection'
+      ],
+      timeout: 60000,
+      protocolTimeout: 60000
+    });
+    
+    page = await browser.newPage();
+    
+    // Configure page settings
+    await page.setDefaultNavigationTimeout(60000);
+    await page.setDefaultTimeout(60000);
+    
+    // Set content
+    await page.setContent(htmlContent, { 
+      waitUntil: 'load',
+      timeout: 60000
+    });
+    
+    // Wait for content to render
+    await page.waitForTimeout(2000);
+    
+    // Generate PDF
+    const pdfBuffer = await page.pdf({
+      format: 'A4',
+      margin: {
+        top: '1cm',
+        right: '1cm',
+        bottom: '1cm',
+        left: '1cm'
+      },
+      printBackground: true,
+      timeout: 60000
+    });
+    
+    return pdfBuffer;
+  } finally {
+    // Cleanup
+    if (page) {
+      try {
+        await page.close();
+      } catch (e) {
+        console.warn('Error closing page:', e.message);
+      }
+    }
+    if (browser) {
+      try {
+        await browser.close();
+      } catch (e) {
+        console.warn('Error closing browser:', e.message);
+      }
+    }
   }
 }
