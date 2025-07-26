@@ -6,7 +6,14 @@ import CopyNotification from './CopyNotification';
 export default function MarkdownToPdfSimple() {
   const [markdown, setMarkdown] = useState('');
   const [filename, setFilename] = useState('document');
-  const [pdfResult, setPdfResult] = useState(null);
+  const [pdfResult, setPdfResult]            <div className="pdf-actions">
+              <button onClick={downloadPdf} className="action-btn">
+                🖨️ Print as PDF
+              </button>
+              <button onClick={copyPdfToClipboard} className="action-btn">
+                📄 Copy HTML
+              </button>
+            </div>ate(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showNotification, setShowNotification] = useState(false);
