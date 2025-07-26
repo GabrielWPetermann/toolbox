@@ -261,7 +261,7 @@ For more information, visit [GitHub](https://github.com).`;
       {pdfResult && (
         <div className="pdf-preview-section">
           <div className="tool-card">
-            <h2>📄 PDF Info</h2>
+            <h2>📄 Document Preview</h2>
             
             <div className="pdf-info">
               <div className="result-item">
@@ -273,6 +273,24 @@ For more information, visit [GitHub](https://github.com).`;
                 <span>{formatFileSize(pdfResult.size)}</span>
               </div>
             </div>
+
+            {/* Preview iframe */}
+            {pdfResult.html && (
+              <div className="pdf-preview-frame">
+                <h3>📖 Preview</h3>
+                <iframe
+                  srcDoc={pdfResult.html}
+                  style={{
+                    width: '100%',
+                    height: '600px',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    backgroundColor: 'white'
+                  }}
+                  title="Document Preview"
+                />
+              </div>
+            )}
 
             <div className="pdf-actions">
               <button onClick={downloadPdf} className="action-btn">
