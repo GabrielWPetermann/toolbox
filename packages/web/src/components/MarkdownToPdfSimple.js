@@ -6,14 +6,7 @@ import CopyNotification from './CopyNotification';
 export default function MarkdownToPdfSimple() {
   const [markdown, setMarkdown] = useState('');
   const [filename, setFilename] = useState('document');
-  const [pdfResult, setPdfResult]            <div className="pdf-actions">
-              <button onClick={downloadPdf} className="action-btn">
-                🖨️ Print as PDF
-              </button>
-              <button onClick={copyPdfToClipboard} className="action-btn">
-                📄 Copy HTML
-              </button>
-            </div>ate(null);
+  const [pdfResult, setPdfResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [showNotification, setShowNotification] = useState(false);
@@ -48,279 +41,148 @@ export default function MarkdownToPdfSimple() {
           console.error('Error details:', data.details);
         }
       }
-    } catch (err) {
-      console.error('Network/request error:', err);
-      setError('Network error. Please try again.');
+    } catch (error) {
+      console.error('Network error:', error);
+      setError('Network error: ' + error.message);
     } finally {
       setLoading(false);
     }
   };
 
   const downloadPdf = () => {
-    if (!pdfResult) return;
-    
-    // If we have HTML content, open it in a new window for printing
-    if (pdfResult.html) {
-      const newWindow = window.open('', '_blank');
-      newWindow.document.write(pdfResult.html);
-      newWindow.document.close();
+    if (pdfResult?.htmlContent) {
+      const printWindow = window.open('', '_blank');
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>${pdfResult.filename}</title>
+          <style>
+            @media print {
+              @page { margin: 1in; }
+              body { font-family: Arial, sans-serif; line-height: 1.6; }
+              h1, h2, h3, h4, h5, h6 { break-after: avoid; }
+              pre { white-space: pre-wrap; break-inside: avoid; }
+              img { max-width: 100%; height: auto; }
+            }
+            body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 20px; }
+            h1, h2, h3, h4, h5, h6 { margin-top: 1.5em; margin-bottom: 0.5em; }
+            pre { background: #f5f5f5; padding: 10px; border-radius: 5px; overflow-x: auto; }
+            code { background: #f5f5f5; padding: 2px 4px; border-radius: 3px; }
+            blockquote { border-left: 4px solid #ccc; margin: 0; padding-left: 16px; }
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+          </style>
+        </head>
+        <body>${pdfResult.htmlContent}</body>
+        </html>
+      `;
       
-      // Wait for content to load then trigger print dialog
-      setTimeout(() => {
-        newWindow.print();
-      }, 500);
-    } else if (pdfResult.pdfDataUrl) {
-      // Fallback to original PDF download method
-      const link = document.createElement('a');
-      link.download = pdfResult.filename;
-      link.href = pdfResult.pdfDataUrl;
-      link.click();
-    }
-  };
-
-  const downloadPdfDirect = async () => {
-    if (!markdown.trim()) return;
-    
-    setLoading(true);
-    setError('');
-
-    try {
-      const response = await fetch('/api/tools/md-to-pdf-download', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          markdown: markdown.trim(),
-          filename: filename.trim() || 'document'
-        }),
-      });
-
-      if (response.ok) {
-        const contentType = response.headers.get('content-type');
-        
-        if (contentType && contentType.includes('text/html')) {
-          // HTML response - open in new tab for printing
-          const htmlContent = await response.text();
-          const newWindow = window.open('', '_blank');
-          newWindow.document.write(htmlContent);
-          newWindow.document.close();
-          
-          setShowNotification(true);
-        } else {
-          // PDF response - download as file
-          const blob = await response.blob();
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `${filename || 'document'}.pdf`;
-          link.click();
-          URL.revokeObjectURL(url);
-          
-          setShowNotification(true);
-        }
-      } else {
-        const errorData = await response.json();
-        setError(errorData.error || 'Failed to generate document');
-      }
-    } catch (err) {
-      console.error('Direct download error:', err);
-      setError('Network error. Please try again.');
-    } finally {
-      setLoading(false);
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+      
+      printWindow.onload = () => {
+        printWindow.print();
+        printWindow.close();
+      };
     }
   };
 
   const copyPdfToClipboard = async () => {
-    if (!pdfResult) return;
-    
-    try {
-      // If we have HTML content, copy the HTML
-      if (pdfResult.html) {
-        await navigator.clipboard.writeText(pdfResult.html);
-        setShowNotification(true);
-        return;
-      }
-      
-      // Fallback to original PDF method
-      const response = await fetch(pdfResult.pdfDataUrl);
-      const blob = await response.blob();
-      
-      await navigator.clipboard.write([
-        new ClipboardItem({ 'application/pdf': blob })
-      ]);
-      
-      setShowNotification(true);
-    } catch (err) {
-      // Fallback: copy the data URL or HTML
+    if (pdfResult?.htmlContent) {
       try {
-        const contentToCopy = pdfResult.html || pdfResult.pdfDataUrl;
-        await navigator.clipboard.writeText(contentToCopy);
+        await navigator.clipboard.writeText(pdfResult.htmlContent);
         setShowNotification(true);
-      } catch (fallbackErr) {
-        console.error('Failed to copy content:', fallbackErr);
+        setTimeout(() => setShowNotification(false), 3000);
+      } catch (error) {
+        console.error('Failed to copy HTML to clipboard:', error);
       }
     }
   };
 
-  const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
-  const sampleMarkdown = `# Sample Document
-
-## Introduction
-This is a **sample** Markdown document to demonstrate the *MD to PDF* converter.
-
-### Features
-- Convert Markdown to styled PDF
-- Professional formatting
-- Code syntax highlighting
-- Tables and lists support
-
-### Code Example
-\`\`\`javascript
-function hello() {
-  console.log("Hello, World!");
-}
-\`\`\`
-
-### Table Example
-| Feature | Status |
-|---------|--------|
-| Headers | ✅ |
-| Lists | ✅ |
-| Code | ✅ |
-| Tables | ✅ |
-
-> This is a blockquote example
-
-For more information, visit [GitHub](https://github.com).`;
-
   return (
     <div className="md-to-pdf-container">
       <div className="md-input-section">
-        <div className="tool-card">
-          <h2>📝 Create Document</h2>
-          
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label htmlFor="filename">Filename (without extension):</label>
-              <input
-                id="filename"
-                type="text"
-                value={filename}
-                onChange={(e) => setFilename(e.target.value)}
-                placeholder="document"
-                disabled={loading}
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="pdf-form">
+          <div className="form-group">
+            <label htmlFor="filename">Filename:</label>
+            <input
+              type="text"
+              id="filename"
+              value={filename}
+              onChange={(e) => setFilename(e.target.value)}
+              placeholder="document"
+              className="filename-input"
+            />
+          </div>
 
-            <div className="form-group">
-              <label htmlFor="markdown">Markdown Content:</label>
-              <div className="textarea-with-sample">
-                <textarea
-                  id="markdown"
-                  value={markdown}
-                  onChange={(e) => setMarkdown(e.target.value)}
-                  placeholder="Enter your Markdown content here..."
-                  rows={12}
-                  required
-                  disabled={loading}
-                />
-                <button 
-                  type="button" 
-                  onClick={() => setMarkdown(sampleMarkdown)}
-                  className="sample-btn"
-                  disabled={loading}
-                >
-                  📝 Load Sample
-                </button>
-              </div>
-            </div>
+          <div className="form-group">
+            <label htmlFor="markdown">Markdown Content:</label>
+            <textarea
+              id="markdown"
+              value={markdown}
+              onChange={(e) => setMarkdown(e.target.value)}
+              placeholder="Enter your Markdown content here..."
+              className="markdown-input"
+              rows={15}
+            />
+          </div>
 
-            <div className="button-group">
-              <button type="submit" disabled={loading || !markdown.trim()}>
-                {loading ? 'Generating PDF...' : 'Generate PDF'}
-              </button>
-              
-              <button 
-                type="button" 
-                onClick={downloadPdfDirect}
-                disabled={loading || !markdown.trim()}
-                className="action-btn"
-              >
-                �️ Quick Print
-              </button>
-            </div>
-          </form>
+          <div className="button-group">
+            <button 
+              type="submit" 
+              disabled={loading || !markdown.trim()}
+              className="action-btn primary"
+            >
+              {loading ? '🔄 Converting...' : '🔄 Convert to HTML'}
+            </button>
+          </div>
+        </form>
 
-          {error && (
-            <div className="error-message">
-              {error}
-            </div>
-          )}
-        </div>
+        {error && (
+          <div className="error-message">
+            <strong>Error:</strong> {error}
+          </div>
+        )}
       </div>
 
-      {pdfResult && (
-        <div className="pdf-preview-section">
-          <div className="tool-card">
-            <h2>📄 Document Preview</h2>
-            
+      <div className="pdf-preview-section">
+        <h3>📄 Preview & Actions</h3>
+        
+        {pdfResult ? (
+          <>
             <div className="pdf-info">
-              <div className="result-item">
-                <label>Filename:</label>
-                <span>{pdfResult.filename}</span>
-              </div>
-              <div className="result-item">
-                <label>File Size:</label>
-                <span>{formatFileSize(pdfResult.size)}</span>
-              </div>
+              <p><strong>File:</strong> {pdfResult.filename}</p>
+              <p><strong>Generated:</strong> {new Date().toLocaleString()}</p>
             </div>
-
-            {/* Preview iframe */}
-            {pdfResult.html && (
-              <div className="pdf-preview-frame">
-                <h3>📖 Preview</h3>
-                <iframe
-                  srcDoc={pdfResult.html}
-                  style={{
-                    width: '100%',
-                    height: '600px',
-                    border: '1px solid #ddd',
-                    borderRadius: '8px',
-                    backgroundColor: 'white'
-                  }}
-                  title="Document Preview"
-                />
-              </div>
-            )}
 
             <div className="pdf-actions">
               <button onClick={downloadPdf} className="action-btn">
-                �️ Print as PDF
+                🖨️ Print as PDF
               </button>
               <button onClick={copyPdfToClipboard} className="action-btn">
-                📋 Copy HTML
+                📄 Copy HTML
               </button>
             </div>
 
-            <div className="pdf-preview-message">
-              <p>✅ Document formatted successfully!</p>
-              <p>Click "Print as PDF" to open in a new window where you can save as PDF using your browser's print function (Ctrl+P → Save as PDF).</p>
+            <div className="preview-container">
+              <iframe
+                srcDoc={pdfResult.htmlContent}
+                title="PDF Preview"
+                className="pdf-preview"
+                sandbox="allow-same-origin"
+              />
             </div>
+          </>
+        ) : (
+          <div className="preview-placeholder">
+            <p>📝 Enter Markdown content and click "Convert to HTML" to see the preview</p>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      <CopyNotification 
-        show={showNotification} 
-        onHide={() => setShowNotification(false)} 
-        message="PDF criado com sucesso!"
-      />
+      <CopyNotification show={showNotification} />
     </div>
   );
 }

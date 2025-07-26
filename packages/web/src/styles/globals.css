@@ -445,25 +445,117 @@ button[type="submit"]:disabled,
   }
 
   .navigation {
+    position: fixed;
+    left: -100%;
+    top: 60px;
     width: 100%;
-    height: auto;
+    height: calc(100vh - 60px);
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(20px);
+    transition: left 0.3s ease;
+    z-index: 1000;
+    border-right: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .navigation.mobile-open {
+    left: 0;
+  }
+
+  .mobile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+
+  .mobile-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    z-index: 1001;
+  }
+
+  .mobile-menu-btn {
+    background: none;
+    border: none;
+    color: white;
+    padding: 8px;
+    cursor: pointer;
+    margin-right: 1rem;
+  }
+
+  .hamburger {
+    width: 24px;
+    height: 18px;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .hamburger span {
+    display: block;
+    height: 2px;
+    width: 100%;
+    background: white;
+    border-radius: 1px;
+    transition: all 0.3s ease;
+    transform-origin: center;
+  }
+
+  .hamburger.open span:first-child {
+    transform: rotate(45deg) translate(6px, 6px);
+  }
+
+  .hamburger.open span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .hamburger.open span:last-child {
+    transform: rotate(-45deg) translate(6px, -6px);
+  }
+
+  .mobile-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: white;
+    font-size: 1.25rem;
+    font-weight: 600;
   }
 
   .nav-tools {
-    flex-direction: row;
-    overflow-x: auto;
-    padding: 0.5rem;
+    padding-top: 1rem;
   }
 
   .nav-tool {
-    min-width: 150px;
-    flex-direction: column;
-    text-align: center;
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
   }
 
   .main-content {
     margin-left: 0;
+    margin-top: 60px;
+  }
+
+  .tool-header {
+    padding: 1.5rem 0;
+  }
+
+  .tool-content {
+    padding: 1.5rem 0;
   }
 
   .md-to-pdf-container {
@@ -472,6 +564,15 @@ button[type="submit"]:disabled,
 
   .md-input-section,
   .pdf-preview-section {
+    width: 100%;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+  
+  .button-group button {
+    flex: none;
     width: 100%;
   }
 }
@@ -603,6 +704,21 @@ button[type="submit"]:disabled,
   margin-bottom: 3rem;
 }
 
+@media (max-width: 768px) {
+  .tools-showcase {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .tools-showcase {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
 .tool-showcase-card {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
@@ -618,6 +734,13 @@ button[type="submit"]:disabled,
   text-align: center;
 }
 
+@media (max-width: 480px) {
+  .tool-showcase-card {
+    padding: 1.5rem;
+    border-radius: 12px;
+  }
+}
+
 .tool-showcase-card:hover {
   transform: translateY(-8px);
   background: rgba(255, 255, 255, 0.15);
@@ -631,16 +754,37 @@ button[type="submit"]:disabled,
   opacity: 0.9;
 }
 
+@media (max-width: 480px) {
+  .tool-showcase-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+  }
+}
+
 .tool-showcase-content h3 {
   font-size: 1.5rem;
   margin-bottom: 0.75rem;
   color: white;
 }
 
+@media (max-width: 480px) {
+  .tool-showcase-content h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
 .tool-showcase-content p {
   color: rgba(255, 255, 255, 0.8);
   margin-bottom: 1.5rem;
   line-height: 1.5;
+}
+
+@media (max-width: 480px) {
+  .tool-showcase-content p {
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
 }
 
 .tool-features {
@@ -748,13 +892,41 @@ button[type="submit"]:disabled,
   font-weight: 600;
 }
 
-@media (max-width: 768px) {
-  .button-group {
-    flex-direction: column;
+/* Additional Mobile Improvements */
+@media (max-width: 480px) {
+  .container {
+    padding: 0 0.75rem;
   }
-  
-  .button-group button {
-    flex: none;
-    width: 100%;
+
+  .tool-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .nav-tool {
+    padding: 0.75rem;
+  }
+
+  .tool-name {
+    font-size: 0.9rem;
+  }
+
+  .tool-desc {
+    font-size: 0.75rem;
+  }
+
+  .mobile-brand .nav-title {
+    font-size: 1.1rem;
+  }
+
+  .form-group textarea {
+    min-height: 200px;
+  }
+
+  .button-group {
+    gap: 0.75rem;
+  }
+
+  .preview-container {
+    max-height: 300px;
   }
 }

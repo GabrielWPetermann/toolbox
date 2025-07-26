@@ -26,6 +26,30 @@ export default function Home() {
       path: '/tools/md-to-pdf',
       description: 'Convert Markdown text to professionally formatted PDF',
       features: ['Professional Styling', 'PDF Preview', 'Custom Filename']
+    },
+    {
+      id: 'json-validator',
+      name: 'JSON Validator',
+      icon: '✅',
+      path: '/tools/json-validator',
+      description: 'Validate and format JSON with detailed error reporting',
+      features: ['Syntax Validation', 'Error Detection', 'Formatting']
+    },
+    {
+      id: 'text-comparer',
+      name: 'Text Comparer',
+      icon: '🔀',
+      path: '/tools/text-comparer',
+      description: 'Compare text differences with multiple comparison modes',
+      features: ['Line Comparison', 'Word Analysis', 'Similarity Score']
+    },
+    {
+      id: 'color-palette',
+      name: 'Color Palette Generator',
+      icon: '🎨',
+      path: '/tools/color-palette',
+      description: 'Generate beautiful color palettes using color theory',
+      features: ['Multiple Schemes', 'HEX/RGB/HSL', 'Copy Colors']
     }
   ];
 
