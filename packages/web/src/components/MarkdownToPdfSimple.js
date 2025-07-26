@@ -52,10 +52,23 @@ export default function MarkdownToPdfSimple() {
   const downloadPdf = () => {
     if (!pdfResult) return;
     
-    const link = document.createElement('a');
-    link.download = pdfResult.filename;
-    link.href = pdfResult.pdfDataUrl;
-    link.click();
+    // If we have HTML content, open it in a new window for printing
+    if (pdfResult.html) {
+      const newWindow = window.open('', '_blank');
+      newWindow.document.write(pdfResult.html);
+      newWindow.document.close();
+      
+      // Wait for content to load then trigger print dialog
+      setTimeout(() => {
+        newWindow.print();
+      }, 500);
+    } else if (pdfResult.pdfDataUrl) {
+      // Fallback to original PDF download method
+      const link = document.createElement('a');
+      link.download = pdfResult.filename;
+      link.href = pdfResult.pdfDataUrl;
+      link.click();
+    }
   };
 
   const downloadPdfDirect = async () => {
@@ -75,18 +88,31 @@ export default function MarkdownToPdfSimple() {
       });
 
       if (response.ok) {
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${filename || 'document'}.pdf`;
-        link.click();
-        URL.revokeObjectURL(url);
+        const contentType = response.headers.get('content-type');
         
-        setShowNotification(true);
+        if (contentType && contentType.includes('text/html')) {
+          // HTML response - open in new tab for printing
+          const htmlContent = await response.text();
+          const newWindow = window.open('', '_blank');
+          newWindow.document.write(htmlContent);
+          newWindow.document.close();
+          
+          setShowNotification(true);
+        } else {
+          // PDF response - download as file
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${filename || 'document'}.pdf`;
+          link.click();
+          URL.revokeObjectURL(url);
+          
+          setShowNotification(true);
+        }
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Failed to generate PDF');
+        setError(errorData.error || 'Failed to generate document');
       }
     } catch (err) {
       console.error('Direct download error:', err);
@@ -100,23 +126,30 @@ export default function MarkdownToPdfSimple() {
     if (!pdfResult) return;
     
     try {
-      // Convert base64 to blob
+      // If we have HTML content, copy the HTML
+      if (pdfResult.html) {
+        await navigator.clipboard.writeText(pdfResult.html);
+        setShowNotification(true);
+        return;
+      }
+      
+      // Fallback to original PDF method
       const response = await fetch(pdfResult.pdfDataUrl);
       const blob = await response.blob();
       
-      // Copy to clipboard
       await navigator.clipboard.write([
         new ClipboardItem({ 'application/pdf': blob })
       ]);
       
       setShowNotification(true);
     } catch (err) {
-      // Fallback: copy the download URL
+      // Fallback: copy the data URL or HTML
       try {
-        await navigator.clipboard.writeText(pdfResult.pdfDataUrl);
+        const contentToCopy = pdfResult.html || pdfResult.pdfDataUrl;
+        await navigator.clipboard.writeText(contentToCopy);
         setShowNotification(true);
       } catch (fallbackErr) {
-        console.error('Failed to copy PDF:', fallbackErr);
+        console.error('Failed to copy content:', fallbackErr);
       }
     }
   };
@@ -212,7 +245,7 @@ For more information, visit [GitHub](https://github.com).`;
                 disabled={loading || !markdown.trim()}
                 className="action-btn"
               >
-                📥 Direct Download
+                �️ Quick Print
               </button>
             </div>
           </form>
@@ -243,16 +276,16 @@ For more information, visit [GitHub](https://github.com).`;
 
             <div className="pdf-actions">
               <button onClick={downloadPdf} className="action-btn">
-                📥 Download PDF
+                �️ Print as PDF
               </button>
               <button onClick={copyPdfToClipboard} className="action-btn">
-                📋 Copy PDF
+                📋 Copy HTML
               </button>
             </div>
 
             <div className="pdf-preview-message">
-              <p>✅ PDF generated successfully!</p>
-              <p>Preview will be available in production build. For now, use the download buttons above.</p>
+              <p>✅ Document formatted successfully!</p>
+              <p>Click "Print as PDF" to open in a new window where you can save as PDF using your browser's print function (Ctrl+P → Save as PDF).</p>
             </div>
           </div>
         </div>
