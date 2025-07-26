@@ -229,4 +229,3 @@ async function generatePdf(htmlContent) {
     }
   }
 }
-}
